@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<body>
+    <label for="rows">Rows:</label>
+    <input type="number" id="rows" name="rows" value="3" min="1" max="10">
+    <br>
+    <label for="cols">Columns:</label>
+    <input type="number" id="cols" name="cols" value="3" min="1" max="10">
+    <br>
+    <button onclick="createMatrix()">Create Matrix</button>
+    <br>
+    <canvas id="canvas"></canvas>
+    <input type="color" id="color-picker" style="display: none;">
+    <script>
+      const canvas = new fabric.Canvas('canvas');
+
+      function createMatrix() {
+        const rows = parseInt(document.getElementById('rows').value);
+        const cols = parseInt(document.getElementById('cols').value);
+        const cellSize = 50; // size of each cell in pixels
+        const matrix = [];
+
+        // create the cells
+        for (let i = 0; i < rows; i++) {
+          matrix.push([]);
+          for (let j = 0; j < cols; j++) {
+            const rect = new fabric.Rect({
+              width: cellSize,
+              height: cellSize,
+              fill: 'white',
+              stroke: 'black',
+              strokeWidth: 1,
+              left: j * cellSize,
+              top: i * cellSize,
+            });
+            canvas.add(rect);
+            matrix[i].push(rect);
+
+            // add click event listener to each cell
+            rect.on('mousedown', (event) => {
+              const colorPicker = document.getElementById('color-picker');
+              colorPicker.value = event.target.fill;
+              colorPicker.click();
+              event.target.isEditing = false;
+              event.preventDefault();
+            });
+          }
+        }
+
+        // resize the canvas to fit the matrix
+        canvas.setDimensions({ width: cols * cellSize, height: rows * cellSize });
+      }
+
+      // update the cell color when the color picker value changes
+      const colorPicker = document.getElementById('color-picker');
+      colorPicker.addEventListener('input', (event) => {
+        canvas.getActiveObject().set('fill', event.target.value);
+        canvas.renderAll();
+      });
+    </script>
+  </body>
+{% endblock %}
